@@ -1,10 +1,10 @@
 <p align="center">
   <a href="https://www.gatsbyjs.org">
-    <img alt="Gatsby" src="static/screencast.png" width="50" />
+    <img alt="Gatsby" src="static/logo.png" width="50" />
   </a>
 </p>
 <h1 align="center">
-  ScreeCast Quiz API
+  Digital Fortress API
 </h1>
 
 This is the backend repository built on Django framework, hosted in AWS EC2 server with load balancing optimised.
