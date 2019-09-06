@@ -56,7 +56,7 @@ def getClues(request):
         for clue in clues:
             if user.checkClue(clue.id):
                 response.append(
-                    {"id": clue.id, "question": clue.question, "position": clue.position, 'isSolved': 1}
+                    {"id": clue.id, "question": clue.question, "position": clue.getPosition(), 'isSolved': 1}
                 )
             else:
                 response.append(
@@ -77,7 +77,7 @@ def checkClue(request):
         if clue.checkAnswer(request.GET.get("answer")):
             user.putClues(clue.pk)
             user.save()
-            return JsonResponse({"isTrue": 1, "position": clue.position})
+            return JsonResponse({"isTrue": 1, "position": clue.getPosition()})
         else:
             return JsonResponse({"isTrue": 0})
 

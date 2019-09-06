@@ -24,3 +24,8 @@ class Clue(models.Model):
             if a == answer:
                 return 1
         return 0
+
+    def getPosition(self):
+        pos_arr = self.position.split(",")
+        new_arr = [float(val) for val in pos_arr]
+        return new_arr
