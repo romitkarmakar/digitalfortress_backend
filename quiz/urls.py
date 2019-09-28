@@ -2,6 +2,7 @@ from django.urls import path
 from .controller import question, authentication
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import LeaderBoard
 
 urlpatterns = [
     path('getRound', question.getRound, name='getQuestion'),
@@ -10,7 +11,7 @@ urlpatterns = [
     path('checkClue', question.checkClue, name='checkClue'),
     path('leaderboard', question.leaderboard, name='leaderboard'),
     path('register', authentication.register, name='register'),
+    path('saveLeaderBoard', LeaderBoard, name="download"),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-     
