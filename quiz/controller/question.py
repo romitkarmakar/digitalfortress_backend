@@ -12,7 +12,7 @@ import urllib
 def getRound(request):
     email = request.GET.get("email")
     if verifyUser(email) == 0:
-        return JsonResponse({"status": 500})
+        return JsonResponse({"status": 401})
     else:
         user = Player.objects.get(email=email)
         roundNo = user.score / 10 + 1
@@ -26,7 +26,7 @@ def getRound(request):
 def checkRound(request):
     email = request.GET.get("email")
     if verifyUser(email) == 0:
-        return JsonResponse({"status": 500})
+        return JsonResponse({"status": 401})
     else:
         user = Player.objects.get(email=email)
         roundNo = user.score / 10 + 1
@@ -40,14 +40,14 @@ def checkRound(request):
             user.save()
             return JsonResponse({"status": 200})
         else:
-            return JsonResponse({"status": 500})
+            return JsonResponse({"status": 401})
 
 
 def getClues(request):
     response = []
     email = request.GET.get("email")
     if verifyUser(email) == 0:
-        return JsonResponse({"status": 500})
+        return JsonResponse({"status": 401})
     else:
         user = Player.objects.get(email=email)
         roundNo = user.score / 10 + 1
@@ -56,7 +56,8 @@ def getClues(request):
         for clue in clues:
             if user.checkClue(clue.id):
                 response.append(
-                    {"id": clue.id, "question": clue.question, "position": clue.getPosition(), 'isSolved': 1}
+                    {"id": clue.id, "question": clue.question,
+                        "position": clue.getPosition(), 'isSolved': 1}
                 )
             else:
                 response.append(
@@ -68,7 +69,7 @@ def getClues(request):
 def checkClue(request):
     email = request.GET.get("email")
     if verifyUser(email) == 0:
-        return JsonResponse({"status": 500})
+        return JsonResponse({"status": 401})
     else:
         user = Player.objects.get(email=email)
         roundNo = user.score / 10 + 1
