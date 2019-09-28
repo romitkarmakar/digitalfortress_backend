@@ -1,15 +1,15 @@
 from django.urls import path
-from .controller import question, authentication
+from .controller import authentication
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import LeaderBoard
+from .views import LeaderBoard, getClues, getRound, checkClue, checkRound, leaderboard
 
 urlpatterns = [
-    path('getRound', question.getRound, name='getQuestion'),
-    path('getClues', question.getClues, name='getClues'),
-    path('checkRound', question.checkRound, name='checkRound'),
-    path('checkClue', question.checkClue, name='checkClue'),
-    path('leaderboard', question.leaderboard, name='leaderboard'),
+    path('getRound', getRound, name='getQuestion'),
+    path('getClues', getClues, name='getClues'),
+    path('checkRound', checkRound, name='checkRound'),
+    path('checkClue', checkClue, name='checkClue'),
+    path('leaderboard', leaderboard, name='leaderboard'),
     path('register', authentication.register, name='register'),
     path('saveLeaderBoard', LeaderBoard, name="download"),
 ]
