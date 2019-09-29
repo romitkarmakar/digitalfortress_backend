@@ -10,7 +10,7 @@ def LeaderBoard(request):
         response['Content-Disposition'] = 'attachment; filename="leaderboards.csv"'
 
         writer = csv.writer(response)
-        for player in Player.objects.order_by('-score'):
+        for player in Player.objects.order_by('-score', 'submit_time'):
             writer.writerow([player.name, player.email])
         return response
     else:

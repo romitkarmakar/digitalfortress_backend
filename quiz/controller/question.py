@@ -6,15 +6,23 @@ import datetime
 import json
 from quiz.controller.authentication import verifyUser
 from django.utils import timezone
+from django.views.decorators.http import require_POST
+from controller.authentication import verifyGoogleToken, verifyFacebookToken
 import urllib
 
 
+@require_POST()
 def getRound(request):
-    email = request.GET.get("email")
-    if verifyUser(email) == 0:
+    access_token = request.POST.get("access_token")
+    if(request.POST.get['type'] == '0'):
+        res = verifyGoogleToken(access_token)
+    else:
+        res = verifyFacebookToken(access_token)
+
+    if verifyUser(res['email']) == 0:
         return JsonResponse({"status": 401})
     else:
-        user = Player.objects.get(email=email)
+        user = Player.objects.get(email=res['email'])
         roundNo = user.score / 10 + 1
         try:
             round = Round.objects.get(round_number=roundNo)
@@ -23,9 +31,15 @@ def getRound(request):
         return JsonResponse({"status": 200, "question": round.question})
 
 
+@require_POST()
 def checkRound(request):
-    email = request.GET.get("email")
-    if verifyUser(email) == 0:
+    access_token = request.POST.get("access_token")
+    if(request.POST.get['type'] == '0'):
+        res = verifyGoogleToken(access_token)
+    else:
+        res = verifyFacebookToken(access_token)
+
+    if verifyUser(res['email']) == 0:
         return JsonResponse({"status": 401})
     else:
         user = Player.objects.get(email=email)
@@ -43,13 +57,19 @@ def checkRound(request):
             return JsonResponse({"status": 401})
 
 
+@require_POST()
 def getClues(request):
     response = []
-    email = request.GET.get("email")
-    if verifyUser(email) == 0:
+    access_token = request.POST.get("access_token")
+    if(request.POST.get['type'] == '0'):
+        res = verifyGoogleToken(access_token)
+    else:
+        res = verifyFacebookToken(access_token)
+
+    if verifyUser(res['email']) == 0:
         return JsonResponse({"status": 401})
     else:
-        user = Player.objects.get(email=email)
+        user = Player.objects.get(email=res['email'])
         roundNo = user.score / 10 + 1
         round = Round.objects.get(round_number=roundNo)
         clues = Clue.objects.filter(round=round)
@@ -66,12 +86,18 @@ def getClues(request):
         return JsonResponse(response, safe=False)
 
 
+@require_POST()
 def checkClue(request):
-    email = request.GET.get("email")
-    if verifyUser(email) == 0:
+    access_token = request.POST.get("access_token")
+    if(request.POST.get['type'] == '0'):
+        res = verifyGoogleToken(access_token)
+    else:
+        res = verifyFacebookToken(access_token)
+
+    if verifyUser(res['email']) == 0:
         return JsonResponse({"status": 401})
     else:
-        user = Player.objects.get(email=email)
+        user = Player.objects.get(email=res['email'])
         roundNo = user.score / 10 + 1
         round = Round.objects.get(round_number=roundNo)
         clue = Clue.objects.get(pk=request.GET.get("clue"))
