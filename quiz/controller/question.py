@@ -30,7 +30,7 @@ def getRound(request):
             round = Round.objects.get(round_number=roundNo)
         except:
             return JsonResponse({"status": 404})
-        return JsonResponse({"status": 200, "question": round.question})
+        return JsonResponse({"status": 200, "question": round.question, "centre": centrePoint(roundNo)})
 
 
 @csrf_exempt
@@ -45,7 +45,7 @@ def checkRound(request):
     if verifyUser(res['email']) == 0:
         return JsonResponse({"status": 401})
     else:
-        user = Player.objects.get(email=email)
+        user = Player.objects.get(email=res['email'])
         roundNo = user.score / 10 + 1
         try:
             round = Round.objects.get(round_number=roundNo)
@@ -130,3 +130,19 @@ def leaderboard(request):
         )
         current_rank += 1
     return JsonResponse(players_array, safe=False)
+
+
+def centrePoint(roundNo):
+    clues = Clue.objects.filter(round=roundNo)
+    x = 0.0
+    y = 0.0
+    count = 0
+    for clue in clues:
+        pos = clue.getPosition()
+        x += pos[0]
+        y += pos[1]
+        count += 1
+    centre = []
+    centre.append(x/count)
+    centre.append(y/count)
+    return centre
