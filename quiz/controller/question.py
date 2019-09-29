@@ -6,14 +6,14 @@ import datetime
 import json
 from quiz.controller.authentication import verifyUser
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from controller.authentication import verifyGoogleToken, verifyFacebookToken
+from .authentication import verifyGoogleToken, verifyFacebookToken
 import urllib
 
 
 @csrf_exempt
-@require_POST()
+@require_http_methods(["POST"])
 def getRound(request):
     access_token = request.POST.get("access_token")
     if(request.POST.get['type'] == '0'):
@@ -34,7 +34,7 @@ def getRound(request):
 
 
 @csrf_exempt
-@require_POST()
+@require_http_methods(["POST"])
 def checkRound(request):
     access_token = request.POST.get("access_token")
     if(request.POST.get['type'] == '0'):
@@ -61,7 +61,7 @@ def checkRound(request):
 
 
 @csrf_exempt
-@require_POST()
+@require_http_methods(["POST"])
 def getClues(request):
     response = []
     access_token = request.POST.get("access_token")
@@ -91,7 +91,7 @@ def getClues(request):
 
 
 @csrf_exempt
-@require_POST()
+@require_http_methods(["POST"])
 def checkClue(request):
     access_token = request.POST.get("access_token")
     if(request.POST.get['type'] == '0'):
