@@ -7,10 +7,12 @@ import json
 from quiz.controller.authentication import verifyUser
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from controller.authentication import verifyGoogleToken, verifyFacebookToken
 import urllib
 
 
+@csrf_exempt
 @require_POST()
 def getRound(request):
     access_token = request.POST.get("access_token")
@@ -31,6 +33,7 @@ def getRound(request):
         return JsonResponse({"status": 200, "question": round.question})
 
 
+@csrf_exempt
 @require_POST()
 def checkRound(request):
     access_token = request.POST.get("access_token")
@@ -57,6 +60,7 @@ def checkRound(request):
             return JsonResponse({"status": 401})
 
 
+@csrf_exempt
 @require_POST()
 def getClues(request):
     response = []
@@ -86,6 +90,7 @@ def getClues(request):
         return JsonResponse(response, safe=False)
 
 
+@csrf_exempt
 @require_POST()
 def checkClue(request):
     access_token = request.POST.get("access_token")
