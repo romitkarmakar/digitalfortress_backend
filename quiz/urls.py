@@ -1,17 +1,16 @@
-from django.urls import path
-from .controller import authentication
-from django.conf import settings
-from django.conf.urls.static import static
-from .views import LeaderBoard, getClues, getRound, checkClue, checkRound, leaderboard
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import LeaderBoard, getClue, getRound, putClue, checkRound, leaderboard, Login, Register
 
 urlpatterns = [
-    path('getRound', getRound, name='getQuestion'),
-    path('getClues', getClues, name='getClues'),
-    path('checkRound', checkRound, name='checkRound'),
-    path('checkClue', checkClue, name='checkClue'),
     path('leaderboard', leaderboard, name='leaderboard'),
-    path('register', authentication.register, name='register'),
     path('saveLeaderBoard', LeaderBoard, name="download"),
+    path('getRound', getRound.as_view(), name='round'),
+    path('checkRound', checkRound.as_view(), name="checkRound"),
+    path('getClue', getClue.as_view(), name="clue"),
+    path('checkClue', putClue.as_view(), name="checkClue"),
+    path('auth/login', Login.as_view(), name="login"),
+    path('auth/register', Register.as_view(), name="register"),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
