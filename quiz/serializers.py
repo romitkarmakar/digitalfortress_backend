@@ -31,10 +31,10 @@ class LoginUserSerializer(serializers.Serializer):
     username = serializers.CharField()
 
     def validate(self, data):
-        user = authenticate(**data)
-        if user:
+        user = authenticate(username=data['username'], email=data['email'])
+        if user and user.is_active:
             return user
-        return serializers.ValidationError("Unable to log in. Try again!")
+        raise serializers.ValidationError("Unable to log in. Try again!")
 
 
 class RoundSerializer(serializers.ModelSerializer):

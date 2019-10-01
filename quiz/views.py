@@ -142,7 +142,7 @@ def verifyFacebookToken(token):
     try:
         userId = requests.get(link).json()['data']['user_id']
     except (ValueError, KeyError, TypeError) as error:
-        return error
+        return Response({"error": error})
     return userId
 
 
@@ -208,7 +208,7 @@ class Register(generics.GenericAPIView):
                 "token": AuthToken.objects.create(user)[1]
             })
         else:
-            return Response({"message": "Email Already Registered!"})
+            return Response({"message": "Email Already Registered!", "status": 402})
 
 
 @permission_classes([AllowAny, ])
@@ -216,22 +216,22 @@ class Login(generics.GenericAPIView):
     serializer_class = LoginUserSerializer
 
     def post(self, request, *args, **kwargs):
-        if request.type == '1':
-            res = verifyGoogleToken(request.accesstoken)
+        if request.data.get('type') == '1':
+            res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = verifyFacebookToken(request.accesstoken)
+            res = verifyFacebookToken(request.data.get('accesstoken'))
 
         if verifyUser(res['email']) == True:
-            serializer = self.get_serializer(res)
+            serializer = self.get_serializer(data=res)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data
             player = Player.objects.get(name=user.data.get('username'))
             return Response({
                 "user": player,
-                "token": AuthToken.objects.create(user)})
+                "token": AuthToken.objects.create(user)[1]})
         else:
             return Response({
-                "message": "Email Already Registered!"
+                "message": "Email is not registered!"
             })
 
 
