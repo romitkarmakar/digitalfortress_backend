@@ -18,10 +18,18 @@ This is the backend repository built on Django framework, hosted in AWS EC2 serv
 The API links:
 
 quiz/auth/register - For registering a user
+
 quiz/auth/login - For logging in a user
+
 quiz/getRound - To get the round for a user
+
 quiz/checkRound - To check the answer submitted by a user for a given round
+
 quiz/getClue - To get the clues for a particular round
+
 quiz/checkClue - To check the answer submitted for a given clue question
+
 quiz/leaderboard - To get the current leaderboard
+
 quiz/saveLeaderBoard - To save the leaderboard in a CSV file format
+
