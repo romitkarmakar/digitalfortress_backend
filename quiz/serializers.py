@@ -26,17 +26,6 @@ class PlayerSerializer(serializers.ModelSerializer):
         fields = ('name', 'email', 'image', 'score')
 
 
-class LoginUserSerializer(serializers.Serializer):
-    email = serializers.CharField()
-    username = serializers.CharField()
-
-    def validate(self, data):
-        user = authenticate(username=data['username'], email=data['email'])
-        if user:
-            return user
-        raise serializers.ValidationError("Unable to log in. Try again!")
-
-
 class RoundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Round

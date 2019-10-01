@@ -18,7 +18,7 @@ import csv
 import os
 from django.utils import timezone
 import urllib
-from .serializers import LoginUserSerializer, CreateUserSerializer, RoundSerializer, PlayerSerializer
+from .serializers import CreateUserSerializer, RoundSerializer, PlayerSerializer
 # Create your views here.
 
 
@@ -250,10 +250,10 @@ class getRound(APIView):
             curr_round = Round.objects.get(round_number=roundno)
             serializer = RoundSerializer(curr_round)
             centre = centrePoint(curr_round)
-            return Response({"question": serializer.data, "centre": centre})
+            return Response({"question": serializer.data, "centre": centre, "status": 200, "detail": 1})
         except:
             if roundno == len(Round.objects.all()):
-                return Response({"message": "Finished!"})
+                return Response({"message": "Finished!", "status": 404, "detail": 1})
         return Response({"data": None})
 
 
@@ -268,18 +268,18 @@ class checkRound(APIView):
                 player.score += 10
                 player.submit_time = timezone.now()
                 player.save()
-                return Response({"status": 200})
+                return Response({"status": 200, "detail": 1})
             else:
-                return Response({"status": 500})
+                return Response({"status": 500, "detail": 1})
         except Player.DoesNotExist or Round.DoesNotExist:
-            return Response({"data": None})
+            return Response({"data": None, "status": 404, "detail": 1})
 
 
 @permission_classes([IsAuthenticated])
 class getClue(APIView):
     def get(self, request, format=None):
         try:
-            player = Player.objects.get(name=request.data.get("username"))
+            player = Player.objects.get(name=request.data.get('username'))
             round = Round.objects.get(round_number=(player.score/10+1))
             response = []
             clues = Clue.objects.filter(round=round)
@@ -289,15 +289,15 @@ class getClue(APIView):
                         "id": clue.id,
                         "question": clue.question,
                         "position": clue.getPosition(),
-                        "isSolved": True,
+                        "solved": True
                     })
                 else:
                     response.append(
-                        {"id": clue.id, "question": clue.question, "isSolved": 0}
+                        {"id": clue.id, "question": clue.question, "solved": False}
                     )
-            return Response({"clues": response})
+            return Response({"clues": response, "status": 200, "detail": 1})
         except Player.DoesNotExist or Round.DoesNotExist:
-            return Response({"data": None})
+            return Response({"data": None, "status": 404, "detail": 1})
 
 
 @permission_classes([IsAuthenticated])
@@ -309,8 +309,8 @@ class putClue(APIView):
             if clue.checkAnswer(request.data.get("answer")):
                 player.putClues(clue.pk)
                 player.save()
-                return Response({"isTrue": True, "position": clue.getPosition()})
+                return Response({"status": 200, "position": clue.getPosition(), "detail": 1})
             else:
-                return JsonResponse({"isTrue": 0})
+                return Response({"status": 500, "detail": 1})
         except Player.DoesNotExist:
-            return ({"data": None})
+            return ({"data": None, "status": 404})

@@ -15,6 +15,13 @@ This is the backend repository built on Django framework, hosted in AWS EC2 serv
 2. Then, apply the migrations using **python manange.py migrate**
 3. Run the server using **python manage.py runserver**
 
+**Status Codes:**
+
+200 : Success
+401 : Unauthorized
+404 : Error
+500 : Wrong Answer
+
 The API links:
 
 quiz/auth/register - For registering a user
@@ -32,4 +39,3 @@ quiz/checkClue - To check the answer submitted for a given clue question
 quiz/leaderboard - To get the current leaderboard
 
 quiz/saveLeaderBoard - To save the leaderboard in a CSV file format
-

@@ -18,6 +18,7 @@ class Round(models.Model):
         return answer_array
 
     def checkAnswer(self, answer):
+        answer = answer.lower()
         answers = self.transformAnswer()
         for a in answers:
             if a == answer:
