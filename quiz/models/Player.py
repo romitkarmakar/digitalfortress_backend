@@ -4,7 +4,7 @@ from django.db import models
 class Player(models.Model):
     name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(max_length=254)
-    image = models.TextField(max_length=200)
+    image = models.CharField(max_length=200)
     score = models.IntegerField(default=0)
     current_hints = models.CharField(max_length=200, blank=True)
     submit_time = models.DateTimeField(auto_now_add=True)

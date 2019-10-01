@@ -124,7 +124,7 @@ def verifyGoogleToken(token):
 
     return {
         "email": idinfo['email'],
-        "name": idinfo['name'],
+        "username": idinfo['name'],
         "image": idinfo['picture']
     }
 
@@ -193,16 +193,19 @@ class Register(generics.GenericAPIView):
     serializer_class = CreateUserSerializer
 
     def post(self, request, *args, **kwargs):
-        if request.type == '1':
-            res = verifyGoogleToken(request.accesstoken)
+        if request.data.get('type') == '1':
+            res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
-            res = verifyFacebookToken(request.accesstoken)
+            res = verifyFacebookToken(request.data.get('accesstoken'))
         if verifyUser(res['email']) == False:
-            serializer = self.get_serializer(res)
+            serializer = self.get_serializer(data=res)
+            serializer.is_valid(raise_exception=True)
             user = serializer.save()
+            player = Player.objects.create(
+                name=res['username'], email=res['email'], image=res['image'])
             return Response({
                 "user": serializer.data,
-                "token": AuthToken.objects.create(user)
+                "token": AuthToken.objects.create(user)[1]
             })
         else:
             return Response({"message": "Email Already Registered!"})

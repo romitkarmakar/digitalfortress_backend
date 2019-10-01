@@ -1,23 +1,23 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from quiz.models import Player, Round, Clue
+from quiz.models.Round import Round
+from quiz.models.Player import Player
+from quiz.models.Clue import Clue
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
     email = serializers.CharField()
-    name = serializers.CharField()
+    username = serializers.CharField()
 
     class Meta:
         model = User
-        fields = ('email', 'name')
+        fields = ('email', 'username')
 
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            validated_data['email'], validated_data['name'])
-        player = Player.objects.create(
-            user=user, name=validated_data['name'], email=validated_data['email'], image=validated_data['image'])
-        return User
+    def create(self, data):
+        user = User.objects.create_user(username=data['username'],
+                                        email=data['email'])
+        return user
 
 
 class PlayerSerializer(serializers.ModelSerializer):
