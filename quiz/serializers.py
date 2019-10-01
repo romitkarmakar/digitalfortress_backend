@@ -23,7 +23,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ('user', 'name', 'email', 'image', 'score')
+        fields = ('name', 'email', 'image', 'score')
 
 
 class LoginUserSerializer(serializers.Serializer):
@@ -32,7 +32,7 @@ class LoginUserSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = authenticate(username=data['username'], email=data['email'])
-        if user and user.is_active:
+        if user:
             return user
         raise serializers.ValidationError("Unable to log in. Try again!")
 

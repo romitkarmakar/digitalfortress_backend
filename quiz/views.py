@@ -18,7 +18,7 @@ import csv
 import os
 from django.utils import timezone
 import urllib
-from .serializers import LoginUserSerializer, CreateUserSerializer, RoundSerializer
+from .serializers import LoginUserSerializer, CreateUserSerializer, RoundSerializer, PlayerSerializer
 # Create your views here.
 
 
@@ -205,7 +205,8 @@ class Register(generics.GenericAPIView):
                 name=res['username'], email=res['email'], image=res['image'])
             return Response({
                 "user": serializer.data,
-                "token": AuthToken.objects.create(user)[1]
+                "token": AuthToken.objects.create(user)[1],
+                "status": 200
             })
         else:
             return Response({"message": "Email Already Registered!", "status": 402})
@@ -213,7 +214,7 @@ class Register(generics.GenericAPIView):
 
 @permission_classes([AllowAny, ])
 class Login(generics.GenericAPIView):
-    serializer_class = LoginUserSerializer
+    serializer_class = PlayerSerializer
 
     def post(self, request, *args, **kwargs):
         if request.data.get('type') == '1':
@@ -222,16 +223,21 @@ class Login(generics.GenericAPIView):
             res = verifyFacebookToken(request.data.get('accesstoken'))
 
         if verifyUser(res['email']) == True:
-            serializer = self.get_serializer(data=res)
+            '''serializer = self.get_serializer(data=res)
             serializer.is_valid(raise_exception=True)
-            user = serializer.validated_data
-            player = Player.objects.get(name=user.data.get('username'))
+            user = serializer.validated_data'''
+            user = User.objects.get(username=res['username'])
+            player = Player.objects.get(name=res['username'])
+            serializer = self.get_serializer(player)
             return Response({
-                "user": player,
-                "token": AuthToken.objects.create(user)[1]})
+                "user": serializer.data,
+                "token": AuthToken.objects.create(user)[1],
+                "status": 200
+            })
         else:
             return Response({
-                "message": "Email is not registered!"
+                "message": "Email is not registered!",
+                "status": 404
             })
 
 
