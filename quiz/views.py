@@ -15,6 +15,7 @@ from quiz.models.Clue import Clue
 import datetime
 import json
 import csv
+import os
 from django.utils import timezone
 import urllib
 from .serializers import LoginUserSerializer, CreateUserSerializer, RoundSerializer
@@ -102,11 +103,11 @@ def checkClue(request):
 
 
 def LeaderBoard(request):
-    if request.GET.get("password") == "z12a34p":
+    if request.GET.get("password") == os.environ.get('DOWNLOAD'):
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="leaderboards.csv"'
         writer = csv.writer(response)
-        for player in Player.objects.order_by("-score"):
+        for player in Player.objects.order_by("-score", "submit_time"):
             writer.writerow([player.name, player.email])
         return response
     else:
@@ -114,7 +115,7 @@ def LeaderBoard(request):
 
 
 def verifyGoogleToken(token):
-    CLIENT_ID = '1066270839928-ulo4qi9cai9liclom3ca7cjel1h248hj.apps.googleusercontent.com'
+    CLIENT_ID = os.environ.get('CLIENT_ID')
     idinfo = id_token.verify_oauth2_token(
         token, requests.Request(), CLIENT_ID)
 
@@ -129,8 +130,8 @@ def verifyGoogleToken(token):
 
 
 def verifyFacebookToken(token):
-    APP_SECRET = 'fdd185af07273c8269555b67295db4c7'
-    APP_ID = '2749120435101395'
+    APP_SECRET = os.environ.get('APP_SECRET')
+    APP_ID = os.environ.get('APP_ID')
 
     appLink = 'https://graph.facebook.com/oauth/access_token?client_id={}&client_secret={}&grant_type=client_credentials'.format(
         APP_ID, APP_SECRET)
@@ -142,7 +143,7 @@ def verifyFacebookToken(token):
         userId = requests.get(link).json()['data']['user_id']
     except (ValueError, KeyError, TypeError) as error:
         return error
-        return userId
+    return userId
 
 
 def centrePoint(roundNo):
@@ -164,9 +165,9 @@ def centrePoint(roundNo):
 def verifyUser(email):
     try:
         Player.objects.get(email=email)
-        return 1
+        return True
     except ObjectDoesNotExist:
-        return 0
+        return False
 
 
 @permission_classes([AllowAny, ])
@@ -196,7 +197,7 @@ class Register(generics.GenericAPIView):
             res = verifyGoogleToken(request.accesstoken)
         else:
             res = verifyFacebookToken(request.accesstoken)
-        if verifyUser(res['email']) == 0:
+        if verifyUser(res['email']) == False:
             serializer = self.get_serializer(res)
             user = serializer.save()
             return Response({
@@ -217,11 +218,11 @@ class Login(generics.GenericAPIView):
         else:
             res = verifyFacebookToken(request.accesstoken)
 
-        if verifyUser(res['email']) == 1:
+        if verifyUser(res['email']) == True:
             serializer = self.get_serializer(res)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data
-            player = Player.objects.get(username=user.data.username)
+            player = Player.objects.get(name=user.data.get('username'))
             return Response({
                 "user": player,
                 "token": AuthToken.objects.create(user)})
@@ -234,7 +235,7 @@ class Login(generics.GenericAPIView):
 @permission_classes([IsAuthenticated, ])
 class getRound(APIView):
     def get(self, request, format=None):
-        player = Player.objects.get(user=request.user)
+        player = Player.objects.get(name=request.data.get('username'))
         roundno = player.score/10 + 1
         try:
             curr_round = Round.objects.get(round_number=roundno)
@@ -251,7 +252,7 @@ class getRound(APIView):
 class checkRound(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            player = Player.objects.get(user=request.user)
+            player = Player.objects.get(name=request.data.get('username'))
             round = Round.objects.get(
                 round_number=(player.score/10+1))
             if round.checkAnswer(request.data.get("answer")):
@@ -269,7 +270,7 @@ class checkRound(APIView):
 class getClue(APIView):
     def get(self, request, format=None):
         try:
-            player = Player.objects.get(user=request.user)
+            player = Player.objects.get(name=request.data.get("username"))
             round = Round.objects.get(round_number=(player.score/10+1))
             response = []
             clues = Clue.objects.filter(round=round)
@@ -279,7 +280,7 @@ class getClue(APIView):
                         "id": clue.id,
                         "question": clue.question,
                         "position": clue.getPosition(),
-                        "isSolved": 1,
+                        "isSolved": True,
                     })
                 else:
                     response.append(
@@ -294,12 +295,12 @@ class getClue(APIView):
 class putClue(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            player = Player.objects.get(user=request.user)
+            player = Player.objects.get(name=request.data.get("username"))
             clue = Clue.objects.get(pk=int(request.data.get("clue")))
             if clue.checkAnswer(request.data.get("answer")):
                 player.putClues(clue.pk)
                 player.save()
-                return Response({"isTrue": 1, "position": clue.getPosition()})
+                return Response({"isTrue": True, "position": clue.getPosition()})
             else:
                 return JsonResponse({"isTrue": 0})
         except Player.DoesNotExist:

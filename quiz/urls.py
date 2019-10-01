@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import LeaderBoard, getClue, getRound, putClue, checkRound, leaderboard, Login, Register
 
 urlpatterns = [
-    path('leaderboard', leaderboard, name='leaderboard'),
+    path('leaderboard', leaderboard.as_view(), name='leaderboard'),
     path('saveLeaderBoard', LeaderBoard, name="download"),
     path('getRound', getRound.as_view(), name='round'),
     path('checkRound', checkRound.as_view(), name="checkRound"),

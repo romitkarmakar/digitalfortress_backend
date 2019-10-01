@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'knox',
-    'backend',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +127,12 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+CLIENT_ID = '1066270839928-ulo4qi9cai9liclom3ca7cjel1h248hj.apps.googleusercontent.com'
+
+APP_SECRET = 'fdd185af07273c8269555b67295db4c7'
+
+APP_ID = '2749120435101395'
 
 
 # Static files (CSS, JavaScript, Images)
