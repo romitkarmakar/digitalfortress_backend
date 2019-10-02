@@ -19,6 +19,7 @@ import os
 from django.utils import timezone
 import urllib
 from .serializers import CreateUserSerializer, RoundSerializer, PlayerSerializer
+from decouple import config
 # Create your views here.
 
 
@@ -103,7 +104,7 @@ def checkClue(request):
 
 
 def LeaderBoard(request):
-    if request.GET.get("password") == os.environ.get('DOWNLOAD'):
+    if request.GET.get("password") == config('DOWNLOAD', cast=str):
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="leaderboards.csv"'
         writer = csv.writer(response)
@@ -115,23 +116,27 @@ def LeaderBoard(request):
 
 
 def verifyGoogleToken(token):
-    CLIENT_ID = os.environ.get('CLIENT_ID')
-    idinfo = id_token.verify_oauth2_token(
-        token, requests.Request(), CLIENT_ID)
+    CLIENT_ID = config('CLIENT_ID', cast=str)
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token, requests.Request(), CLIENT_ID)
 
-    if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-        raise ValueError('Wrong issuer.')
+        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError('Wrong issuer.')
 
-    return {
-        "email": idinfo['email'],
-        "username": idinfo['name'],
-        "image": idinfo['picture']
-    }
+        return {
+            "email": idinfo['email'],
+            "username": idinfo['name'],
+            "image": idinfo['picture'],
+            "status": 200
+        }
+    except ValueError:
+        return {"status": 404, "message": "Your Token has expired. Please login/register again!"}
 
 
 def verifyFacebookToken(token):
-    APP_SECRET = os.environ.get('APP_SECRET')
-    APP_ID = os.environ.get('APP_ID')
+    APP_SECRET = config('APP_SECRET')
+    APP_ID = config('APP_ID')
 
     appLink = 'https://graph.facebook.com/oauth/access_token?client_id={}&client_secret={}&grant_type=client_credentials'.format(
         APP_ID, APP_SECRET)
@@ -197,19 +202,25 @@ class Register(generics.GenericAPIView):
             res = verifyGoogleToken(request.data.get('accesstoken'))
         else:
             res = verifyFacebookToken(request.data.get('accesstoken'))
-        if verifyUser(res['email']) == False:
-            serializer = self.get_serializer(data=res)
-            serializer.is_valid(raise_exception=True)
-            user = serializer.save()
-            player = Player.objects.create(
-                name=res['username'], email=res['email'], image=res['image'])
+        if res['status'] == 404:
             return Response({
-                "user": serializer.data,
-                "token": AuthToken.objects.create(user)[1],
-                "status": 200
+                "status": 404,
+                "message": "Token expired."
             })
         else:
-            return Response({"message": "Email Already Registered!", "status": 402})
+            if verifyUser(res['email']) == False:
+                serializer = self.get_serializer(data=res)
+                serializer.is_valid(raise_exception=True)
+                user = serializer.save()
+                player = Player.objects.create(
+                    name=res['username'], email=res['email'], image=res['image'])
+                return Response({
+                    "user": serializer.data,
+                    "token": AuthToken.objects.create(user)[1],
+                    "status": 200
+                })
+            else:
+                return Response({"message": "Email Already Registered!", "status": 402})
 
 
 @permission_classes([AllowAny, ])
@@ -272,7 +283,7 @@ class checkRound(APIView):
             else:
                 return Response({"status": 500, "detail": 1})
         except Player.DoesNotExist or Round.DoesNotExist:
-            return Response({"data": None, "status": 404, "detail": 1})
+            return Response({"status": 404, "detail": 1})
 
 
 @permission_classes([IsAuthenticated])
@@ -297,7 +308,7 @@ class getClue(APIView):
                     )
             return Response({"clues": response, "status": 200, "detail": 1})
         except Player.DoesNotExist or Round.DoesNotExist:
-            return Response({"data": None, "status": 404, "detail": 1})
+            return Response({"status": 404, "detail": 1})
 
 
 @permission_classes([IsAuthenticated])

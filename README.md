@@ -18,8 +18,13 @@ This is the backend repository built on Django framework, hosted in AWS EC2 serv
 **Status Codes:**
 
 200 : Success
+
 401 : Unauthorized
+
 404 : Error
+
+402 : Token Expired.
+
 500 : Wrong Answer
 
 The API links:
