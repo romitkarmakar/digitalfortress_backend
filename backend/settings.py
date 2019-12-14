@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework',
+    'knox',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +85,16 @@ DATABASES = {
     }
 }
 
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'knox.auth.TokenAuthentication',
+    ]
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -115,6 +127,12 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+CLIENT_ID = '1066270839928-ulo4qi9cai9liclom3ca7cjel1h248hj.apps.googleusercontent.com'
+
+APP_SECRET = 'fdd185af07273c8269555b67295db4c7'
+
+APP_ID = '2749120435101395'
 
 
 # Static files (CSS, JavaScript, Images)

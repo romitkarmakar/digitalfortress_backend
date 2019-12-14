@@ -21,5 +21,5 @@ class Round(models.Model):
         answer = answer.lower()
         for a in answers:
             if a == answer:
-                return 1
-        return 0
+                return True
+        return False

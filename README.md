@@ -11,13 +11,24 @@ This is the backend repository built on Django framework, hosted in AWS EC2 serv
 
 **How to run:**
 
-1. First, install the requirements with **pip install -r requirements.txt**.
-2. Then, run the backend using **python manage.py runserver**.
+1. First, install the requiremnents by running the command **pip install -r requirements.txt**
+2. Then, apply the migrations using **python manange.py migrate**
+3. Run the server using **python manage.py runserver**
 
-## Response Status Code
+The API links:
 
-**400** - User not registered
-**401** - Question not found
-**402** - Email Already registred  
-**404** - Authentication Failed  
-**600** - Level Ended
+quiz/auth/register - For registering a user
+
+quiz/auth/login - For logging in a user
+
+quiz/getRound - To get the round for a user
+
+quiz/checkRound - To check the answer submitted by a user for a given round
+
+quiz/getClue - To get the clues for a particular round
+
+quiz/checkClue - To check the answer submitted for a given clue question
+
+quiz/leaderboard - To get the current leaderboard
+
+quiz/saveLeaderBoard - To save the leaderboard in a CSV file format
